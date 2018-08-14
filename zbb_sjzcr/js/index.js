@@ -4,6 +4,7 @@ if(hash == "#1"){
 	index = 1;
 }
 var u = navigator.userAgent;
+var ua = u.toLowerCase();
 var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
 var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
 w_height = $(window).height();
@@ -14,6 +15,30 @@ w_rate = w_width/bg_width;
 h_rate = w_height/bg_height;
 var user_group = 1;
 var mySwiper,jroll;
+function checkIsWeiXin(){
+	if(ua.match(/MicroMessenger/i)=="micromessenger") {
+		return true;
+	} else {
+		return false;
+	}
+}
+//检查是否在微信或者
+function checkCanVote(){
+	var isWx = checkIsWeiXin();
+	var appName = '';
+	try{
+		if (isiOS) {
+			appName = getAppName();
+		} else {
+			appName = window.callNative.getAppName();
+		}
+	}catch(err){}
+	if(appName != 'app' && !isWx){
+		return false;
+	}else{
+		return true;
+	}
+}
 function audioAutoPlay(id){  
 	var audio = document.getElementById(id);
 	if(audio.paused){
@@ -39,7 +64,7 @@ function audioAutoStop(id){
 	}				
 }
 function ini(){
-	window.localStorage.setItem('user_group',user_group);
+	//window.localStorage.setItem('user_group',user_group);
 	//audioAutoPlay('Jaudio');
 	//音乐
 	$(".bgm-btn").on('touchstart click',function(){
@@ -128,13 +153,13 @@ function second_ini(){
 		var id = $(this).attr('id');
 		if(id == 'tr'){
 			user_group = 2;
-			window.localStorage.setItem('user_group',2);
+			//window.localStorage.setItem('user_group',2);
 			$('#tv img').attr('src',imgroot+"/images/page1/tv.png?t=2017");
 			$('#tr img').attr('src',imgroot+"/images/page1/br_on.png?t=2017");
 			getPlayerList(2,1,'',true);
 		}else{
 			user_group = 1;
-			window.localStorage.setItem('user_group',1);
+			//window.localStorage.setItem('user_group',1);
 			$('#tv img').attr('src',imgroot+"/images/page1/tv_on.png?t=2017");
 			$('#tr img').attr('src',imgroot+"/images/page1/br.png?t=2017");
 			getPlayerList(1,1,'',true);
@@ -142,28 +167,33 @@ function second_ini(){
 	});
 }
 function vote(id,user_group){
-	var para = {
-		id:id,
-		user_group:user_group,
-	}
-	$.ajax({
-		type : "POST",
-		async : false,
-		data:para,
-		url : "./API/init.php?ac=vote",
-		dataType : "json",
-		jsonp : "callback",
-		success: function(json){
-			if(json.errcode == 0){
-				//var note = "投票成功！"
-				showDialog("投票成功！");
-				var poll_num = parseInt($("#poll_num_"+id).html())+1;
-				$("#poll_num_"+id).html(poll_num);
-			}else{
-				showDialog(json.errmsg);
-			}
+	var canVote = checkCanVote();
+	if(!canVote){
+		showDialog("请下载壹深圳APP进行投票");
+	}else{
+		var para = {
+			id:id,
+			user_group:user_group,
 		}
-	});
+		$.ajax({
+			type : "POST",
+			async : false,
+			data:para,
+			url : "./API/init.php?ac=vote",
+			dataType : "json",
+			jsonp : "callback",
+			success: function(json){
+				if(json.errcode == 0){
+					//var note = "投票成功！"
+					showDialog("投票成功！");
+					var poll_num = parseInt($("#poll_num_"+id).html())+1;
+					$("#poll_num_"+id).html(poll_num);
+				}else{
+					showDialog(json.errmsg);
+				}
+			}
+		});
+	}
 }
 function getPlayerList(user_group,page,keywords,first){
 	var para = {
@@ -185,9 +215,9 @@ function getPlayerList(user_group,page,keywords,first){
 			var j = 0;
 			for(i=0;i<data.length;i++){
 				var item = data[i];
+				j++;
 				if(item){
-					j++;
-					html += '<tr class="player_total_tr"><td class="player_info" align="center" valign="top"><table width="100%"><tr><td class="player_no">'+item.xuhao+'号</td><td align="right" class="love" colspan="2"><img  src="./images/page1/love.png" align="absmiddle"/>&nbsp;票数:&nbsp;<span class="poll_num" id="poll_num_'+item.id+'">'+item.poll_num+'</span></td></tr><tr class="player_tr"><td width="30%" class="player_avatar"><img  class="lazy" src="./'+item.img+'"/></td><td width="45%" valign="top"><div class="player_name">'+item.name+'</div><div class="player_desc">'+item.desc+'</div><div class="player_detail" title="'+item.id+'"><img  src="./images/page1/detail.png"/></div></td><td><div class="player_lp" title="'+item.id+'"><img  src="./images/page1/lp.png"/></div><div class="player_vote" title="'+item.id+'"><img  src="./images/page1/vote.png?t=2018"/></div></td></tr></table></td></tr>';
+					html += '<tr class="player_total_tr"><td class="player_info" align="center" valign="top"><table width="100%"><tr><td class="player_no">'+item.xuhao+'号</td><td align="right" class="love" colspan="2"><img  src="./images/page1/love.png" align="absmiddle"/>&nbsp;票数:&nbsp;<span class="poll_num" id="poll_num_'+item.id+'">'+item.poll_num+'</span></td></tr><tr class="player_tr"><td width="30%" class="player_avatar"><img  class="lazy" src="./'+item.img+'"/></td><td width="45%" valign="top"><div class="player_name">'+item.name+'</div><div class="player_desc">'+item.descs+'</div><div class="player_detail" title="'+item.id+'"><img  src="./images/page1/detail.png"/></div></td><td><div class="player_lp" title="'+item.id+'"><img  src="./images/page1/lp.png"/></div><div class="player_vote" title="'+item.id+'"><img  src="./images/page1/vote.png?t=2018"/></div></td></tr></table></td></tr>';
 				}			
 			}		
 			
@@ -200,9 +230,14 @@ function getPlayerList(user_group,page,keywords,first){
 				html = "<tr><td align='center' style='color:#fff;margin:10px 0;'>无相关信息</td></tr>";
 			}else{
 				if(isAndroid){
-					bg_main_height = 170*j+380*w_rate;
+					if(page ==1){
+						bg_main_height = 170*j+450;
+					}else{
+						bg_main_height = 170*j+350;
+					}
+					
 				}else{
-					bg_main_height = 170*j+280;
+					bg_main_height = 170*j+480;
 				}	
 			}
 			$(".player_table").html(html);
@@ -248,7 +283,7 @@ function getPlayerList(user_group,page,keywords,first){
 			$(".player_vote").on('click',function(e) {
 				//setTimeout(function(){
 				var id = $(this).attr('title');
-				user_group = window.localStorage.getItem('user_group');
+				//user_group = window.localStorage.getItem('user_group');
 				vote(id,user_group);
 				//},200);
 			});

@@ -102,6 +102,9 @@ class table_player extends app_table
 		$count = DB::result_first('SELECT sum(poll_num) FROM %t WHERE 1=1', array($this->_table));
 		return $count;
 	}
+	public function fetch_player_ph(){	
+		return DB::fetch_all('SELECT name,descs,poll_num,user_group FROM %t WHERE 1 = 1 order by poll_num DESC', array($this->_table));
+	}
 	public function fetch_search_csv($contact,$sr) {
 		global $_G;
 		$sql = "SELECT * FROM ".DB::table('user')." where 1=1 ";

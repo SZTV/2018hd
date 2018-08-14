@@ -1304,10 +1304,9 @@ function is_yidong() {
 	return false;
   }
 function get_imei(){
-	//$myImei = $_COOKIE['myImei'];
+	$myImei = $_COOKIE['myImei'];
 	if(!$myImei){
 		$myImei  = 'imei_'.random(4).'_'.time();
-		var_dump($myImei);
 		setImeiCookie('myImei',$myImei);
 	}
 	return $myImei;

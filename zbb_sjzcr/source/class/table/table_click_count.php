@@ -23,8 +23,11 @@ class table_click_count extends app_table
 	}
 	public function fetch_count(){
 		$count = DB::result_first('SELECT sum(clickcount) as clickcount FROM  %t where 1 = 1',array($this->_table));
-		$canyu_count = C::t("player")->get_canyu_count();
-		$count = $count*21+random(2,1)+$canyu_count;
+		$count = $count*26+random(2,1);
+		return $count;
+	}
+	public function fetch_real_count(){
+		$count = DB::result_first('SELECT sum(clickcount) as clickcount FROM  %t where 1 = 1',array($this->_table));
 		return $count;
 	}
 	public function fetch_list($start,$perpage) {

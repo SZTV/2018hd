@@ -19,6 +19,7 @@ if($ac == 'getPlayerList'){
 		$return['errmsg'] = '参数不全';
 	}else{
 		if(!$keywords){
+			/*
 			$fileName = "../temp/caches/".$user_group."_".$pageindex.".htm";
 			$needUpdate = false;
 			if(!file_exists($fileName)){
@@ -32,9 +33,11 @@ if($ac == 'getPlayerList'){
 			}
 			$return['needUpdate'] = $needUpdate;
 			$return['lastTime'] = $lastTime;
+			*/
+			$needUpdate = true;
 			if($needUpdate){
 				$returnData = C::t('player')->fetch_player_list($pageindex,10,$user_group,$openid,$keywords);
-				file_put_contents($fileName,json_encode($returnData));
+				//file_put_contents($fileName,json_encode($returnData));
 			}else{
 				$returnData = json_decode(file_get_contents($fileName));
 			}
@@ -86,28 +89,34 @@ if($ac == 'getPlayerList'){
 				$return['errcode'] = -1;
 				$return['errmsg'] = '请先授权登陆';
 			}else{
-				$times = C::t('vote')->check_is_more($openid,$user_group);
-				$return['times'] = $times;
-				$return['data'] = array(
-					'openid'=>$openid,
-					'user_group'=>$user_group
-				);
-				if($times >=3 ){
+				$isHefa = C::t('user')->fetch_by_flag($openid);
+				if(!$isHefa){
 					$return['errcode'] = -2;
-					if($user_group == 1){
-						$return['errmsg'] = '你今天已经投过电视主持人三票了';
-					}else{
-						$return['errmsg'] = '你今天已经投过广播主持人三票了';
-					}
+					$return['errmsg'] = '亲！请不要刷票！';
 				}else{
-					C::t('player')->add_poll_num($id);
-					$insert = array(
+					$times = C::t('vote')->check_is_more($openid,$user_group);
+					$return['times'] = $times;
+					$return['data'] = array(
 						'openid'=>$openid,
-						'voteid'=>$id,
-						'user_group'=>$user_group,
-						'date'=>date("Y-m-d")
+						'user_group'=>$user_group
 					);
-					C::t('vote')->insert($insert);
+					if($times >=3 ){
+						$return['errcode'] = -3;
+						if($user_group == 1){
+							$return['errmsg'] = '你今天已经投过电视主持人三票了';
+						}else{
+							$return['errmsg'] = '你今天已经投过广播主持人三票了';
+						}
+					}else{
+						C::t('player')->add_poll_num($id);
+						$insert = array(
+							'openid'=>$openid,
+							'voteid'=>$id,
+							'user_group'=>$user_group,
+							'date'=>date("Y-m-d")
+						);
+						C::t('vote')->insert($insert);
+					}
 				}
 			}
 		}

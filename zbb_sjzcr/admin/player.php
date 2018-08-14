@@ -36,7 +36,7 @@ if ($operation == 'list')
 		//$user_group = $_POST['user_group'];
 		$user_group = 1;
 		$id = intval($_POST['id']);
-		$desc = $_POST['desc'];
+		$descs = $_POST['descs'];
 		$poll_num = intval($_POST['poll_num']);
 		$xuhao = $_POST['xuhao'];
 		$detail = $_POST['detail'];
@@ -47,7 +47,7 @@ if ($operation == 'list')
 		}
 		$data['name'] = $name;
 		$data['poll_num'] = $poll_num;
-		$data['desc'] = $desc;
+		$data['descs'] = $descs;
 		$data['xuhao'] = $xuhao;
 		$data['detail'] = $detail;
 		$data['user_group'] = $user_group;
@@ -69,7 +69,7 @@ if ($operation == 'list')
 		$name = $_POST['name'];
 		//$user_group = $_POST['user_group'];
 		$user_group = 1;
-		$desc = $_POST['desc'];
+		$descs = $_POST['descs'];
 		$xuhao = $_POST['xuhao'];
 		$poll_num = intval($_POST['poll_num']);
 		$detail = $_POST['detail'];
@@ -81,7 +81,7 @@ if ($operation == 'list')
 		$data['name'] = $name;
 		$data['xuhao'] = $xuhao;
 		$data['poll_num'] = $poll_num;
-		$data['desc'] = $desc;
+		$data['descs'] = $descs;
 		$data['detail'] = $detail;
 		$data['user_group'] = $user_group;
 		$res = C::t('player')->insert($data);
